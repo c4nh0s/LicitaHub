@@ -1,15 +1,22 @@
-const express = require('express');
-const cors = require('cors');
+const express = require("express");
+const cors = require("cors");
 const app = express();
-const authRoutes = require('./routes/auth');
 
+// body parser & CORS
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/auth', authRoutes);
+// importa rotas de auth e middleware
+const authRoutes = require("./routes/authRoutes");
+const authMiddleware = require("./middleware/authMiddleware");
 
-app.get('/', (req, res) => res.send('API LicitaHub rodando...'));
+// prefixa /auth em todas as rotas de auth
+app.use("/auth", authRoutes);
 
-app.listen(3001, () => {
-  console.log('Servidor rodando na porta 3001');
+// rota protegida de exemplo
+app.get("/dashboard", authMiddleware, (req, res) => {
+  res.json({ mensagem: `Bem-vindo, ${req.usuario.email}!` });
 });
+
+// inicia servidor
+app.listen(3000, () => console.log("API rodando na porta 3000"));

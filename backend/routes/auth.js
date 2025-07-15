@@ -1,8 +1,16 @@
-const express = require('express');
-const router = express.Router();
-const { login, register } = require('../controllers/authController');
+const jwt = require("jsonwebtoken");
 
-router.post('/login', login);
-router.post('/register', register);
+function authMiddleware(req, res, next) {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ erro: "Token não fornecido" });
 
-module.exports = router;
+  try {
+    const decoded = jwt.verify(token, "segredo123");
+    req.usuario = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ erro: "Token inválido" });
+  }
+}
+
+module.exports = authMiddleware;
